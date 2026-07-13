@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Smart Task Manager</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI';
+}
+
+body {
+    height: 100vh;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    width: 380px;
+    padding: 20px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    color: white;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.input-box {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.input-box input {
+    flex: 1;
+    padding: 8px;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+}
+
+.input-box button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 8px;
+    background: #00c9ff;
+    color: white;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.input-box button:hover {
+    background: #92fe9d;
+    color: black;
+}
+
+#time {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 8px;
+    border-radius: 8px;
+    border: none;
+}
+
+ul {
+    list-style: none;
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+li {
+    background: rgba(255,255,255,0.2);
+    padding: 10px;
+    border-radius: 10px;
+    margin-top: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: 0.3s;
+}
+
+li:hover {
+    transform: scale(1.02);
+}
+
+.task-text {
+    cursor: pointer;
+}
+
+.completed {
+    text-decoration: line-through;
+    opacity: 0.6;
+}
+
+small {
+    display: block;
+    font-size: 10px;
+    opacity: 0.8;
+}
+
+.delete {
+    background: red;
+    border: none;
+    padding: 5px 8px;
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+}
+
+.stats {
+    margin-top: 10px;
+    text-align: center;
+    font-size: 14px;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+    <h1>✨ My Tasks</h1>
+
+    <div class="input-box">
+        <input type="text" id="task" placeholder="Enter task...">
+        <button onclick="addTask()">Add</button>
+    </div>
+
+    <input type="datetime-local" id="time">
+
+    <ul id="list"></ul>
+
+    <div class="stats" id="stats"></div>
+</div>
+
+<script>
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+function save() {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+}
+
+function render() {
+    let list = document.getElementById("list");
+    list.innerHTML = "";
+
+    let done = 0;
+
+    tasks.forEach((t, i) => {
+        if (t.done) done++;
+
+        let li = document.createElement("li");
+
+        li.innerHTML = `
+            <div class="task-text ${t.done ? 'completed' : ''}" onclick="toggle(${i})">
+                ${t.text}
+                <small>${t.time || ""}</small>
+            </div>
+            <button class="delete" onclick="removeTask(${i})">X</button>
+        `;
+
+        list.appendChild(li);
+    });
+
+    document.getElementById("stats").innerText =`Completed:${done} / ${tasks.length}`;
+}
+
+function addTask() {
+    let text = document.getElementById("task").value;
+    let time = document.getElementById("time").value;
+
+    if (text === "") return;
+
+    tasks.push({ text, time, done: false });
+
+    document.getElementById("task").value = "";
+    document.getElementById("time").value = "";
+
+    save();
+    render();
+}
+
+function removeTask(i) {
+    tasks.splice(i, 1);
+    save();
+    render();
+}
+
+function toggle(i) {
+    tasks[i].done = !tasks[i].done;
+    save();
+    render();
+}
+
+render();
+</script>
+
+</body>
+</html>
